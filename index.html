@@ -928,7 +928,6 @@ $('settingsModal').addEventListener('click', e => {
 
 $('modalSave').addEventListener('click', async () => {
   const token = $('tokenInput').value.trim();
-  const server = $('serverInput').value.trim();
 
   if (!token) {
     showStatus('Введите OAuth токен', 'error');
@@ -939,33 +938,13 @@ $('modalSave').addEventListener('click', async () => {
   $('settingsStatus').classList.remove('show');
 
   try {
-    // Сохраняем настройки
     yandexToken = token;
-    serverUrl = server || API_BASE;
     localStorage.setItem('yandex_token', yandexToken);
-    localStorage.setItem('server_url', serverUrl);
-
-    // Загружаем треки с сервера
-    const response = await fetch(`${serverUrl}/api/tracks`);
-    if (response.ok) {
-      const serverTracks = await response.json();
-      if (serverTracks.length > 0) {
-        tracks = serverTracks;
-        isYandexMode = true;
-        buildPlaylist();
-        loadTrack(0);
-        showStatus(`Загружено ${tracks.length} треков из Яндекс Музыки!`, 'success');
-        $('sourceIndicator').style.display = 'flex';
-        $('badgeYandex').style.display = 'inline-flex';
-        setTimeout(() => $('settingsModal').classList.remove('show'), 1500);
-      } else {
-        showStatus('Треки не найдены. Запустите fetch_favorites.py для загрузки.', 'error');
-      }
-    } else {
-      showStatus('Ошибка API. Попробуйте позже.', 'error');
-    }
+    
+    showStatus(`Токен сохранён! Плейлист уже загружен.`, 'success');
+    setTimeout(() => $('settingsModal').classList.remove('show'), 1500);
   } catch (err) {
-    showStatus('Ошибка подключения: ' + err.message, 'error');
+    showStatus('Ошибка: ' + err.message, 'error');
   } finally {
     $('settingsLoading').classList.remove('show');
   }
@@ -982,19 +961,17 @@ buildPlaylist();
 loadTrack(0);
 updateVolumeIcon();
 
-// Если есть сохранённый токен, пробуем загрузить
-if (yandexToken) {
-  fetch(`${serverUrl}/api/tracks`).then(r => r.json()).then(data => {
-    if (data.length > 0) {
-      tracks = data;
-      isYandexMode = true;
-      buildPlaylist();
-      loadTrack(0);
-      $('sourceIndicator').style.display = 'flex';
-      $('badgeYandex').style.display = 'inline-flex';
-    }
-  }).catch(() => {});
-}
+// Load tracks from static tracks.json (works on both localhost and Vercel)
+fetch('tracks.json').then(r => r.json()).then(data => {
+  if (data.length > 0) {
+    tracks = data;
+    isYandexMode = true;
+    buildPlaylist();
+    loadTrack(0);
+    $('sourceIndicator').style.display = 'flex';
+    $('badgeYandex').style.display = 'inline-flex';
+  }
+}).catch(() => {});
 </script>
 </body>
 </html>
