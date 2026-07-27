@@ -682,7 +682,7 @@ function loadTrack(index) {
 }
 
 function loadYandexAudio(trackId) {
-  const apiUrl = `${serverUrl}/api/audio/${trackId}?token=${encodeURIComponent(yandexToken)}`;
+  const apiUrl = `${serverUrl}/api/audio?trackId=${encodeURIComponent(trackId)}&token=${encodeURIComponent(yandexToken)}`;
   
   fetch(apiUrl)
     .then(r => r.json())
