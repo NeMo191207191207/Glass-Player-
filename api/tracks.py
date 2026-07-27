@@ -1,43 +1,26 @@
 import json
 import os
+from http.server import BaseHTTPRequestHandler
 
-def handler(request):
-    if request.method == 'OPTIONS':
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET',
-            },
-        }
-    
-    # Try multiple paths for tracks.json
-    tracks = None
-    possible_paths = [
-        os.path.join(os.getcwd(), 'tracks.json'),
-        os.path.join(os.path.dirname(__file__), '..', 'tracks.json'),
-        '/var/task/tracks.json',
-    ]
-    
-    for path in possible_paths:
-        if os.path.exists(path):
-            with open(path, 'r', encoding='utf-8') as f:
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Cache-Control', 's-maxage=60, stale-while-revalidate')
+        self.end_headers()
+        
+        tracks_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tracks.json')
+        
+        if os.path.exists(tracks_path):
+            with open(tracks_path, 'r', encoding='utf-8') as f:
                 tracks = json.load(f)
-            break
+            self.wfile.write(json.dumps(tracks).encode())
+        else:
+            self.wfile.write(b'[]')
     
-    if tracks:
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Cache-Control': 's-maxage=60, stale-while-revalidate',
-            },
-            'body': json.dumps(tracks),
-        }
-    else:
-        return {
-            'statusCode': 200,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': '[]',
-        }
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET')
+        self.end_headers()
