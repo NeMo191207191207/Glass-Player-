@@ -1,0 +1,16 @@
+{
+  "name": "glass-player",
+  "version": "1.0.0",
+  "description": "Стильный музыкальный плеер в glassmorphism дизайне с интеграцией Яндекс Музыки",
+  "main": "index.html",
+  "scripts": {
+    "dev": "node server/server.js",
+    "start": "node server/server.js"
+  },
+  "dependencies": {
+    "yandex-music": "^1.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

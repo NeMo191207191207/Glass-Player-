@@ -1,0 +1,7 @@
+node_modules/
+.env
+*.log
+server/node_modules/
+tracks.json
+token.txt
+.vercel
