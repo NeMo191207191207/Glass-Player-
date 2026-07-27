@@ -16,10 +16,10 @@ def handler(request):
             },
         }
     
-    # Get query parameters
+    # Get query parameters (Vercel provides them as lists)
     query = request.query or {}
-    track_id = query.get('trackId')
-    token = query.get('token')
+    track_id = query.get('trackId', [None])[0] if isinstance(query.get('trackId'), list) else query.get('trackId')
+    token = query.get('token', [None])[0] if isinstance(query.get('token'), list) else query.get('token')
     
     if not track_id or not token:
         return {
