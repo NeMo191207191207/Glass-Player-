@@ -1,4 +1,4 @@
-const { YandexMusicApi } = require('yandex-music');
+const { YandexMusicClient } = require('yandex-music');
 
 // Simple in-memory cache
 const cache = new Map();
@@ -21,11 +21,10 @@ module.exports = async (req, res) => {
   }
   
   try {
-    const api = new YandexMusicApi();
-    await api.init(token);
+    const client = new YandexMusicClient({ token });
     
     const [id, albumId] = trackId.split(':');
-    const tracks = await api.tracks([`${id}:${albumId}`]);
+    const tracks = await client.tracks([`${id}:${albumId}`]);
     const track = tracks[0];
     const info = await track.getDownloadInfo();
     
