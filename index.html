@@ -962,7 +962,7 @@ $('modalSave').addEventListener('click', async () => {
         showStatus('Треки не найдены. Запустите fetch_favorites.py для загрузки.', 'error');
       }
     } else {
-      showStatus('Сервер недоступен. Запустите: node server.js', 'error');
+      showStatus('Ошибка API. Попробуйте позже.', 'error');
     }
   } catch (err) {
     showStatus('Ошибка подключения: ' + err.message, 'error');
