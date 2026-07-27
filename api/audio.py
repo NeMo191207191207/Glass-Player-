@@ -1,5 +1,4 @@
 import json
-import urllib.parse
 import time
 from yandex_music import Client
 
@@ -17,10 +16,10 @@ def handler(request):
             },
         }
     
-    params = urllib.parse.parse_qs(urllib.parse.urlparse(request.url).query)
-    
-    track_id = params.get('trackId', [None])[0]
-    token = params.get('token', [None])[0]
+    # Get query parameters
+    query = request.query or {}
+    track_id = query.get('trackId')
+    token = query.get('token')
     
     if not track_id or not token:
         return {
