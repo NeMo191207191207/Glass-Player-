@@ -1,44 +1,36 @@
+from http.server import BaseHTTPRequestHandler
 import json
 import os
 
-def handler(request):
-    if request.method == 'OPTIONS':
-        return {
-            'status': 200,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET',
-            },
-            'body': ''
-        }
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Cache-Control', 's-maxage=60, stale-while-revalidate')
+        self.end_headers()
+        
+        # Try multiple paths for tracks.json
+        tracks = None
+        possible_paths = [
+            os.path.join(os.getcwd(), 'tracks.json'),
+            os.path.join(os.path.dirname(__file__), '..', 'tracks.json'),
+            '/var/task/tracks.json',
+        ]
+        
+        for path in possible_paths:
+            if os.path.exists(path):
+                with open(path, 'r', encoding='utf-8') as f:
+                    tracks = json.load(f)
+                break
+        
+        if tracks:
+            self.wfile.write(json.dumps(tracks).encode())
+        else:
+            self.wfile.write(b'[]')
     
-    # Try multiple paths for tracks.json
-    tracks = None
-    possible_paths = [
-        os.path.join(os.getcwd(), 'tracks.json'),
-        os.path.join(os.path.dirname(__file__), '..', 'tracks.json'),
-        '/var/task/tracks.json',
-    ]
-    
-    for path in possible_paths:
-        if os.path.exists(path):
-            with open(path, 'r', encoding='utf-8') as f:
-                tracks = json.load(f)
-            break
-    
-    if tracks:
-        return {
-            'status': 200,
-            'headers': {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Cache-Control': 's-maxage=60, stale-while-revalidate',
-            },
-            'body': json.dumps(tracks)
-        }
-    else:
-        return {
-            'status': 200,
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': '[]'
-        }
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET')
+        self.end_headers()
