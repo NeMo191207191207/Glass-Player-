@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler
 import json
-import urllib.request
 import urllib.parse
+import time
 
 TOKEN_CACHE = {}
 
@@ -24,7 +24,6 @@ class handler(BaseHTTPRequestHandler):
         
         # Check cache
         if track_id in TOKEN_CACHE:
-            import time
             cached = TOKEN_CACHE[track_id]
             if time.time() - cached['time'] < 1800:
                 self.wfile.write(json.dumps({'url': cached['url']}).encode())
@@ -47,7 +46,6 @@ class handler(BaseHTTPRequestHandler):
                 url = info[0].get_direct_link()
             
             if url:
-                import time
                 TOKEN_CACHE[track_id] = {'url': url, 'time': time.time()}
                 self.wfile.write(json.dumps({'url': url}).encode())
             else:
