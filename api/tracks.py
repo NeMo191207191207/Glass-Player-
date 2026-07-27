@@ -11,11 +11,21 @@ def handler(request):
             },
         }
     
-    tracks_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tracks.json')
+    # Try multiple paths for tracks.json
+    tracks = None
+    possible_paths = [
+        os.path.join(os.getcwd(), 'tracks.json'),
+        os.path.join(os.path.dirname(__file__), '..', 'tracks.json'),
+        '/var/task/tracks.json',
+    ]
     
-    if os.path.exists(tracks_path):
-        with open(tracks_path, 'r', encoding='utf-8') as f:
-            tracks = json.load(f)
+    for path in possible_paths:
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                tracks = json.load(f)
+            break
+    
+    if tracks:
         return {
             'statusCode': 200,
             'headers': {
